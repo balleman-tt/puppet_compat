@@ -1,6 +1,7 @@
-[![Build Status](https://travis-ci.org/voroniys/puppet_compat.svg?branch=master)](https://travis-ci.org/voroniys/puppet_compat)
-
 # puppet_compat Cookbook
+
+[![Build Status](https://travis-ci.org/voroniys/puppet_compat.svg?branch=master)](https://travis-ci.org/voroniys/puppet_compat)
+[![Cookbook Version](https://img.shields.io/cookbook/v/puppet_compat.svg)](https://supermarket.chef.io/cookbooks/puppet_compat)
 
 While doing migration from Puppet to Chef I can easily map all Puppet resources to the Chef ones. All except two:
 - file_line
