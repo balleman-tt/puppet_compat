@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/voroniys/puppet_compat.svg?branch=master)](https://travis-ci.org/voroniys/puppet_compat)
+
 # puppet_compat Cookbook
 
 While doing migration from Puppet to Chef I can easily map all Puppet resources to the Chef ones. All except two:
