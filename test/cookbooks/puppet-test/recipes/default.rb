@@ -52,3 +52,23 @@ ini_setting 'Delete section' do
   section   'del'
   action    :delete
 end
+ini_setting 'Settings in hash' do
+  path      '/tmp/test.ini'
+  section   'settings_test'
+  setting   node['settings_test']
+end
+ini_setting 'Sections in hash' do
+  path      '/tmp/test.ini'
+  section   node['sections_test']
+end
+ini_setting 'Delete settings in array' do
+  path      '/tmp/test.ini'
+  section   'test'
+  setting   node['settings_del']
+  action    :delete
+end
+ini_setting 'Delete sections in array' do
+  path      '/tmp/test.ini'
+  section   node['sections_del']
+  action    :delete
+end

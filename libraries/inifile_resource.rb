@@ -40,11 +40,11 @@ class Chef
       end
 
       def section(arg = nil)
-        set_or_return(:section, arg, kind_of: String)
+        set_or_return(:section, arg, kind_of: [String, Hash, Array])
       end
 
       def setting(arg = nil)
-        set_or_return(:setting, arg, kind_of: String)
+        set_or_return(:setting, arg, kind_of: [String, Hash, Array])
       end
 
       def value(arg = nil)

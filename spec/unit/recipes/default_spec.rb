@@ -31,8 +31,16 @@ EOF
 option_one=will_stay
 option_two=delete
 option_chg=ugly
+away1=10
+away2=20
 [del]
 a=b
+[del1]
+c=d
+e=f
+[del2]
+g=h
+i=j
 EOF
   before(:each) do
     allow(File).to receive(:exist?).with(anything).and_call_original

@@ -23,6 +23,8 @@ This cookbook need iniparse GEM to be installed.
 ### Chef
 
 - Chef 12.1+
+- Chef 13+
+- Chef 14+
 
 ### Recipes
 
@@ -120,11 +122,53 @@ end
 This is caused by the bug in iniparse GEM, see:
    https://github.com/antw/iniparse/issues/20
 
+#### ini_setting extensions
+Based on practical use of the ini_setting resource I've made some extensions, which are not supported by puppet version of the resource.
+This extension is useful when you need to do a number of changes in ini file. In puppet inplementation it is usualy solved by calling
+`ini_settings` using `create_resources()` function. For Chef implementation I've decided to make it easy: properties `section` and `setting`
+may by a hash or array.
+
+##### set multiple setting within one section
+In this case you need to pass to `setting` property the hash of key-value pairs like this one:
+```ruby
+default['settings_test'] = {
+  'one' => 'a',
+  'two' => 'b',
+}
+```
+Property `value` should not be used in this case.
+
+##### set multiple settings in multiple sections
+In this case you need to pass to `section` property the hash, where keys are section names and values are hashes like in previous case.
+For example:
+```ruby
+default['sections_test'] = {
+  'testsec1' => {
+    'set1' => 10,
+    'set2' => 20,
+  },
+  'testsec2' => {
+    'set21' => 100,
+    'set22' => 200,
+  },
+}
+```
+With both methods above it is possible to change existing settings/sections or add a new ones.
+
+##### delete multiple settings within a section
+Just pass to `setting` property array with the settings names that should be deleted
+
+##### delete multiple settings in multiple sections
+In this case you need to pass to `section` property the hash, where keys are section names and values are arrays with settings names to delete.
+
+##### delete multiple sections
+Also possible. For this pass to `section` property array with section names to be deleted.
+
 ## License & Authors
 
 - Author:: Stanislav Voroniy ([stas@voroniy.com](mailto:stas@voroniy.com))
 ```text
-Copyright 2017, Stanislav Voroniy
+Copyright 2017-2018, Stanislav Voroniy
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

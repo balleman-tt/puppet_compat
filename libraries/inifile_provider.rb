@@ -30,57 +30,109 @@ class Chef
 
       # The set action
       #
-      def action_ensure
-        ini = IniParse.open(new_resource.path)
-        updated = false
-        section = if new_resource.section.nil? || new_resource.section.empty?
-                    '__anonymous__'
-                  else
-                    new_resource.section
-                  end
-        setting = new_resource.setting
-        value = new_resource.value
+      def set_one(ini, section, setting, value)
         if ini.has_section?(section) && ini[section].has_option?(setting) && ini[section][setting] == value
           Chef::Log.debug "Option '#{section}/#{setting}' == '#{value}', not setting..."
+          false
         else
           old_value = if ini.has_section?(section) && ini[section].has_option?(setting)
                         ini[section][setting]
                       else
                         'unset'
                       end
-          converge_by("Set '#{setting}' in section '#{section}' of '#{new_resource.path}' file to '#{value}', was '#{old_value}'") do
+          converge_by("Set '#{setting}' in section '#{section}' of '#{@new_resource.path}' file to '#{value}', was '#{old_value}'") do
             ini.section(section) unless ini.has_section?(section)
             ini[section][setting] = value
-            ini[section].option(setting).instance_variable_set(:@option_sep, new_resource.separator) unless new_resource.separator.nil?
+            ini[section].option(setting).instance_variable_set(:@option_sep, @new_resource.separator) unless @new_resource.separator.nil?
           end
-          updated = true
+          true
+        end
+      end
+
+      def action_ensure
+        ini = IniParse.open(new_resource.path)
+        updated = false
+        if new_resource.section.is_a?(Hash)
+          Chef::Application.fatal!("If options 'section' is a hash options 'setting'/'value' are may not be used", 2) unless new_resource.setting.nil? && new_resource.value.nil?
+          new_resource.section.each do |sect, settings|
+            Chef::Application.fatal!("Option 'section' must be a hash of hashes", 2) unless settings.is_a?(Hash)
+            settings.each do |setting, value|
+              updated = set_one(ini, sect, setting, value)
+            end
+          end
+        else
+          Chef::Application.fatal!("Option 'section' must be a hash or a string", 2) if new_resource.section.is_a?(Array)
+          section = if new_resource.section.nil? || new_resource.section.empty?
+                      '__anonymous__'
+                    else
+                      new_resource.section
+                    end
+          if new_resource.setting.is_a?(Hash)
+            new_resource.setting.each do |setting, value|
+              updated = set_one(ini, section, setting, value)
+            end
+          else
+            Chef::Application.fatal!("Option 'setting' must be a hash or a string", 2) if new_resource.setting.is_a?(Array)
+            Chef::Application.fatal!("Option 'setting' may not be empty", 2) if new_resource.setting.nil? || new_resource.setting.empty?
+            Chef::Application.fatal!("Option 'value' must be present", 2) if new_resource.value.nil?
+            updated = set_one(ini, section, new_resource.setting, new_resource.value)
+          end
         end
         ini.save(new_resource.path) if updated
       end
 
       # The delete action
       #
+      def delete_section(ini, section)
+        if ini.has_section?(section)
+          converge_by("Remove section '#{section}' from '#{@new_resource.path}' file") do
+            ini.delete(section)
+          end
+          true
+        else
+          Chef::Log.debug "Section '#{section}' not present in file '#{@new_resource.path}', skipping..."
+          false
+        end
+      end
+
+      def delete_setting(ini, section, setting)
+        if ini[section].has_option?(setting)
+          converge_by("Remove option '#{setting}' from section '#{section}' of '#{@new_resource.path}' file") do
+            ini[section].delete(setting)
+          end
+          true
+        else
+          Chef::Log.debug "Section '#{section}' in file '#{@new_resource.path}' has no setting '#{setting}', skipping..."
+          false
+        end
+      end
+
       def action_delete
         ini = IniParse.open(new_resource.path)
-        section = new_resource.section
-        setting = new_resource.setting
         updated = false
-        if ini.has_section?(section)
-          if setting.nil?
-            converge_by("Remove section '#{section}' from '#{new_resource.path}' file") do
-              ini.delete(section)
+        if new_resource.section.is_a?(Hash)
+          new_resource.section.each do |sect, settings|
+            Chef::Application.fatal!("Option 'section' must be a hash of arrays", 2) unless settings.is_a?(Array)
+            settings.each do |setting|
+              updated = delete_setting(ini, sect, setting)
             end
-            updated = true
-          elsif ini[section].has_option?(setting)
-            converge_by("Remove option '#{setting}' from section '#{section}' of '#{new_resource.path}' file") do
-              ini[section].delete(setting)
-            end
-            updated = true
-          else
-            Chef::Log.debug "Section '#{section}' in file '#{new_resource.path}' has no setting '#{setting}', skipping..."
+          end
+        elsif new_resource.section.is_a?(Array)
+          Chef::Application.fatal!("If option 'section' is an array option 'setting' may not be defined", 2) unless new_resource.setting.nil?
+          new_resource.section.each do |section|
+            updated = delete_section(ini, section)
+          end
+        elsif new_resource.setting.nil?
+          updated = delete_section(ini, new_resource.section)
+        elsif new_resource.setting.is_a?(Hash)
+          Chef::Application.fatal!("Option 'setting' must be an array", 2)
+        elsif new_resource.setting.is_a?(Array)
+          new_resource.setting.each do |setting|
+            updated = delete_setting(ini, new_resource.section, setting)
           end
         else
-          Chef::Log.debug "Section '#{section}' not present in file '#{new_resource.path}', skipping..."
+          Chef::Application.fatal!("Option 'setting' may not be empty", 2) if new_resource.setting.empty?
+          updated = delete_setting(ini, new_resource.section, new_resource.setting)
         end
         ini.save(new_resource.path) if updated
       end
