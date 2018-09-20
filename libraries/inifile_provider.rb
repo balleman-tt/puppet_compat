@@ -31,7 +31,7 @@ class Chef
       # The set action
       #
       def set_one(ini, section, setting, value)
-        if ini.has_section?(section) && ini[section].has_option?(setting) && ini[section][setting] == value
+        if ini.has_section?(section) && ini[section].has_option?(setting) && ini[section][setting].to_s == value.to_s
           Chef::Log.debug "Option '#{section}/#{setting}' == '#{value}', not setting..."
           false
         else
