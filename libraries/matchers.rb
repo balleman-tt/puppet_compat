@@ -29,7 +29,7 @@ if defined?(ChefSpec)
   ChefSpec.define_matcher :file_line
 
   def ensure_file_line(resource_name)
-    ChefSpec::Matchers::ResourceMatcher.new(:file_line, :set, resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:file_line, :ensure, resource_name)
   end
 
   def delete_file_line(resource_name)
