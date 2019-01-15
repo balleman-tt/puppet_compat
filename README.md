@@ -34,6 +34,7 @@ takes care that iniparse GEM used by the HWPR is installed
 ## Usage
 
 Just add to your cookbook metadata.rb
+
 ```ruby
 depends 'puppet_compat'
 ```
@@ -42,6 +43,7 @@ and you can use file_line and ini_setting resources in you recipes.
 
 ### file_line
 The file line resource has the same properties, like in puppet except it has action instead of ensure.
+
 ```ruby
 file_line 'Add a line' do
   path   '/tmp/test.cfg'
@@ -67,6 +69,7 @@ file_line 'Change one line with match' do
   line   'tochange: changed'
 end
 ```
+
 ### ini_setting
 Usage of ini_setting is also pretty close to the Puppet one. Ensure is also replaced with action.
 The only one addition - you may provide the format of parameter=value separator. 
@@ -75,6 +78,7 @@ param=value
 or
 param = value
 for some software packeges is important. For these non-standard following software you cat provide separator property:
+
 ```ruby
 ini_setting 'Set option' do
   path      '/tmp/test.ini'
@@ -91,7 +95,10 @@ ini_setting 'Set option with spaces' do
   separator ' = '
 end
 ```
+
 The rest of usage cases are selfexplanatory:
+
+
 ```ruby
 ini_setting 'Delete option' do
   path      '/tmp/test.ini'
@@ -111,7 +118,9 @@ ini_setting 'Delete section' do
   action    :delete
 end
 ```
+
 Known bug - the following resource will fail if file `/tmp/test.ini` does not contain any options without a section:
+
 ```ruby
 ini_setting 'Set option outside sections' do
   path      '/tmp/test.ini'
@@ -119,6 +128,7 @@ ini_setting 'Set option outside sections' do
   value     'added'
 end
 ```
+
 This is caused by the bug in iniparse GEM, see:
    https://github.com/antw/iniparse/issues/20
 
@@ -130,17 +140,20 @@ may by a hash or array.
 
 ##### set multiple setting within one section
 In this case you need to pass to `setting` property the hash of key-value pairs like this one:
+
 ```ruby
 default['settings_test'] = {
   'one' => 'a',
   'two' => 'b',
 }
 ```
+
 Property `value` should not be used in this case.
 
 ##### set multiple settings in multiple sections
 In this case you need to pass to `section` property the hash, where keys are section names and values are hashes like in previous case.
 For example:
+
 ```ruby
 default['sections_test'] = {
   'testsec1' => {
@@ -153,6 +166,7 @@ default['sections_test'] = {
   },
 }
 ```
+
 With both methods above it is possible to change existing settings/sections or add a new ones.
 
 ##### delete multiple settings within a section
@@ -167,6 +181,7 @@ Also possible. For this pass to `section` property array with section names to b
 ## License & Authors
 
 - Author:: Stanislav Voroniy ([stas@voroniy.com](mailto:stas@voroniy.com))
+
 ```text
 Copyright 2017-2018, Stanislav Voroniy
 
