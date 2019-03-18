@@ -19,7 +19,7 @@ if defined?(ChefSpec)
   ChefSpec.define_matcher :ini_setting
 
   def ensure_ini_setting(resource_name)
-    ChefSpec::Matchers::ResourceMatcher.new(:ini_setting, :set, resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:ini_setting, :ensure, resource_name)
   end
 
   def delete_ini_setting(resource_name)
