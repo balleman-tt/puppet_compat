@@ -25,7 +25,7 @@ option: stay
 todelete: true
 yetanother: delete
 tochange: not_changed
-EOF
+  EOF
   ini = <<-EOF
 [test]
 option_one=will_stay
@@ -41,7 +41,7 @@ e=f
 [del2]
 g=h
 i=j
-EOF
+  EOF
   before(:each) do
     allow(File).to receive(:exist?).with(anything).and_call_original
     allow(File).to receive(:exist?).with('/tmp/test.cfg').and_return true
