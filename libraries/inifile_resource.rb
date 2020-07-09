@@ -21,6 +21,7 @@ class Chef
   class Resource
     # Resource decleration for IniSetting resource
     class IniSetting < Chef::Resource
+      provides :ini_setting
       identity_attr :name
       def initialize(name, run_context = nil)
         super
